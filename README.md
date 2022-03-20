@@ -10,6 +10,8 @@
 - [Lint Job](#lint-job)
 - [Test and coverage Job](#test-and-coverage-job)
 - [SonarCloud Job](#sonarcloud-job)
+- [Conclusion](conclusion)
+
 
 ## Introduction
 
@@ -181,7 +183,7 @@ workflows:
             - test_and_coverage
 ```
 
-# SonarCloud Job
+## SonarCloud Job
 
 SonarCloud is a platform how offer the SonarQuebe as a service, SonarQuebe is a multi-language tool that analyzes our code base in search of bugs, vulnerabilities, code smells and returns quality indicators. To integrate CircleCI with the SonarCloud platform we going to use a powerful tool in CircleCI called Orbs, you can found more about [Orbs here](https://circleci.com/orbs/?utm_source=google&utm_medium=sem&utm_campaign=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand&utm_term=g_e-circleci%20orbs_c__commandsSU_20200730&utm_content=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand_keyword-text_eta-circleCIOrbs_mixed-&gclid=CjwKCAjwoduRBhA4EiwACL5RP5bwGA_CGCL_q0FQfMWfvXT6KPnXgCjSWlIOOixwC_3XoQCgTdX9rhoCb4kQAvD_BwE). To use orbs you need to allowed your organization to used it. Go to Organization Settings > Security and allowed orbs.
 
@@ -227,7 +229,7 @@ sonar.go.tests.reportPaths=report.json
 sonar.go.coverage.reportPaths=coverage.out
 ```
 
-The last configuration is register our SONAR_TOKEN into the our CircleCI project. To do that we navigate through our CircleCI project, going to the Project Configurations > Environment Variable and add the SONAR_TOKEN. With all of this steps we can write our SonarCloud Job.
+The last configuration is register our SONAR_TOKEN into the our CircleCI project. To do that navigate through our CircleCI project, going to the Project Configurations > Environment Variable and add the SONAR_TOKEN. With all of this steps done we can write our SonarCloud Job.
 
 ```yml
 jobs:
@@ -246,3 +248,117 @@ jobs:
 orbs:
   sonarcloud: sonarsource/sonarcloud@1.0.3
 ```
+
+We can merge all of this jobs in our config.yml and get our beautiful pipeline.
+
+```yml
+version: 2.1
+
+jobs:
+  lint:
+    working_directory: ~/repo
+    docker:
+      - image: golangci/golangci-lint:v1.45
+    steps:
+      - checkout
+      - run: golangci-lint run ./... --out-format=checkstyle --print-issued-lines=false --print-linter-name=false --issues-exit-code=0 --enable=revive > golanci-report.xml
+      - persist_to_workspace:
+          root: ~/repo
+          paths: 
+            - golanci-report.xml
+
+  test_and_coverage:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/golang:1.17
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+
+      - run:
+          name: Install Dependencies
+          command: go mod download
+
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+
+      - run:
+          name: Run unit tests
+          command: |
+            mkdir -p /tmp/test-reports
+            gotestsum --junitfile /tmp/test-reports/unit-tests.xml
+      - store_test_results:
+          path: /tmp/test-reports
+
+      - run:
+          name: Run coverage
+          command: |
+            go test ./... -race -coverprofile=coverage.out -json > report.json
+      - persist_to_workspace:
+          root: ~/repo
+          paths: 
+            - coverage.out
+            - report.json
+
+  sonar:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/golang:1.17
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/repo
+
+      - sonarcloud/scan:
+          sonar_token_variable_name: SONAR_TOKEN
+
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/golang:1.17
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+
+      - run:
+          name: Install Dependencies
+          command: go mod download
+
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+
+      - run:
+          name: Run build
+          command: |
+            mkdir -p /tmp/artifacts/build
+            go build -ldflags "-s -w" -o exec main.go
+            mv exec /tmp/artifacts/build
+      - store_artifacts:
+          path: /tmp/artifacts/build
+
+orbs:
+  sonarcloud: sonarsource/sonarcloud@1.0.3
+
+workflows:
+  ci:
+    jobs:
+      - lint
+      - test_and_coverage
+      - sonar:
+          requires:
+            - lint
+            - test_and_coverage
+      - build:
+          requires:
+            - sonar
+```
+
+## Conclusion
