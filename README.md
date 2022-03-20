@@ -7,7 +7,7 @@
   <img src="./assets/cover.png" />
 </p>
 
-[**In progress**]
+[Medium](https://ralvescosta.medium.com/how-to-configure-circleci-and-sonarqube-for-golang-application-b9f0394080b7)
 
 ## Table of contents
 
@@ -201,7 +201,7 @@ First of all, we need to create an account in SonarCloud, and before we need to 
 Before that sonar will get you two important things your **projectKey** and **SONAR_TOKEN** don’t lose then. The next thing to do is create our **sonar-project-properties** file, this file contains our sonar scanner configuration to configure sonar to do everting we want.
 
 
-```toml
+```properties
 # =====================================================
 #   Standard properties
 # =====================================================
