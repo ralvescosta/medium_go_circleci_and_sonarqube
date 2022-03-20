@@ -3,6 +3,10 @@
 [![CircleCI](https://circleci.com/gh/ralvescosta/medium_go_circleci_and_sonarqube/tree/main.svg?style=svg)](https://circleci.com/gh/ralvescosta/medium_go_circleci_and_sonarqube/tree/main)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ralvescosta_medium_go_and_circleci&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ralvescosta_medium_go_and_circleci)
 
+<p align="center">
+  <img src="./assets/cover.png" />
+</p>
+
 [**In progress**]
 
 ## Table of contents
@@ -18,15 +22,15 @@
 
 ## Introduction
 
-One of the impotent thing in our projects is the CI process. Continuous Integration (CI) is the practice of automating the integration of code changes and guarantee the quality of the software. If CI is so important, why we don't configure this process in our personal projects? Maybe because we thing is so harder to configure or even it's take so much time. In this post I'm going to show you a simple way to configure a strong CI process using some of the best tools for that, [CircleCI](https://circleci.com/) and [SonarQube](https://sonarcloud.io/).
+One of the important things in our projects is the CI process. Continuous Integration (CI) is the practice of automating the integration of code changes and guarantee the quality of the software. If CI is so important, why we don’t configure this process in our personal projects? Maybe because we think is so harder to configure or even it’s taking so much time. In this post, I’m going to show you a simple way to configure a strong CI process using some of the best tools for that, [CircleCI](https://circleci.com/) and [SonarQube](https://sonarcloud.io/).
 
-For this post we are configure a CI for a simple GoLang application creating a multistage CI, each stage we called Job, in the end of this post we're going to have four jobs: **Lint**, **Test and Coverage**, **Quality Analises with SonarQube** and **Build**. The proposal where is to explain the CI not build a GoLang application so we assume you already know the GoLang basics and some tools [Test Pkg](https://pkg.go.dev/cmd/go/internal/test), [GolangCI Lint](https://golangci-lint.run/) also the basics about Github and Github Actions.
+For this post we are configuring a CI for a simple GoLang application creating a multistage CI, each stage we called Job, at the end of this post we’re going to have four jobs: **Lint**, **Test and Coverage**, **Quality Analises with SonarQube** and **Build**. The proposal where is to explain that CI not build a GoLang application so we assume you already know the GoLang basics and some tools [Test Pkg](https://pkg.go.dev/cmd/go/internal/test), [GolangCI Lint](https://golangci-lint.run/) also the basics about Github and Github Actions.
 
-The project that was built can be found in [this repository](https://github.com/ralvescosta/medium_go_and_circleci).
+The project that was built can be found in [this repository](https://github.com/ralvescosta/medium_go_circleci_and_sonarqube).
 
 ## Initial Configurations
 
-First we need to create a yaml file to configure our CI processes, for CircleCI this file need to be create in a specific directory:
+First, we need to create a YAML file to configure our CI processes, for CircleCI this file need to be created in a specific directory:
 
 ```bash
 make .circleci
@@ -34,7 +38,7 @@ make .circleci
 touch .circleci/config.yml
 ```
 
-We start our config.yml like this:
+We’ll start our config.yml like this:
 
 ```yml
 version: 2.1
@@ -48,7 +52,7 @@ workflows:
         - job_name
 ```
 
-We can see two main tags: 'jobs' and 'workflows'. Basically the tag 'jobs' we define the job execution flow and in the 'workflows' how to execute the 'jobs'. Let's start with the build job:
+We can see two main tags: ‘jobs’ and ‘workflows’. Basically, the tag ‘jobs’ define the job execution flow and in the ‘workflows’ how to execute the ‘jobs’. Let’s start with the build job.
 
 ## Build Job
 
@@ -89,7 +93,7 @@ workflows:
       - build
 ```
 
-This job is self explanatory basically we downloaded the project packages and build our project. With this job we can run our first pipeline, but first we need to publish the config.yml in the repository and then we need to configure our project in CircleCi Projects.
+This job is self-explanatory basically we downloaded the project packages and build our project. With this job, we can run our first pipeline, but first, we need to publish the config.yml in the repository, and then we need to configure our project in CircleCi Projects.
 
 <img src="./assets/1.png" />
 
@@ -114,9 +118,9 @@ jobs:
             - golanci-report.xml
 ```
 
-For lint we used the [GolangCI Lint](https://golangci-lint.run/) but we have some configurations to do, how you can see the golangci-lint execution has a bunch of arguments, let's talk about that. The first argument '--out-format' needed to be 'checkstyle' for integrate better with sonar. Other flag importante to talk about is --issues-exit-code=0, we need to configure this flag with 0 because whe golangci execute and found something wrong in our project the executor will finish with exit code igual 1 and when our pipeline receives this result it failure, to avoid the pipeline failure and get the report to send for the sonar we needed to change the flag --issues-exit-code. Before the runner we have a step to persiste the report file in a path to allowed others job to access it.
+For lint, we used the [GolangCI Lint](https://golangci-lint.run/) but we have some configurations to do, how you can see the golangci-lint execution has a bunch of arguments, let’s talk about that. The first argument--out-format needed to be ‘checkstyle’ for integrating better with sonar. Another flag important to talk about is --issues-exit-code=0, we need to configure this flag with 0 because we golangci execute and found something wrong in our project the executor will finish with exit code Igual 1, and when our pipeline receives this result it fails, to avoid the pipeline failure and get the report to send for the sonar we needed to change the flag--issues-exit-code. Before the runner, we have a step to persist the report file in a path to allowed others' jobs to access it.
 
-For this point we can now configure our workflows with theses jobs:
+For this point we can now configure our workflows with these jobs:
 
 ```yml
 workflows:
@@ -129,7 +133,7 @@ workflows:
 
 ```
 
-In our workflows we can see something diferente, it's because we wanted the build job execute only after the lint job finished their execution.
+In our workflows we can see something different, it’s because we wanted the build job to execute only after the lint job finished their execution.
 
 ## Test and coverage Job
 
@@ -172,7 +176,7 @@ jobs:
             - report.json
 ```
 
-That job is a quite equal than the others, we has thee runners, the first to get the golang pkgs, the second one to run the unit tests and the last one to run the coverage. Now our workflows looks like:
+That job is quite equal to the others, we have thee runners, the first to get the GoLang pkg’s, the second one to run the unit tests, and the last one to run the coverage. Now our workflows look like this:
 
 ```yml
 workflows:
@@ -188,13 +192,14 @@ workflows:
 
 ## SonarCloud Job
 
-SonarCloud is a platform how offer the SonarQube as a service, SonarQube is a multi-language tool that analyzes our code base in search of bugs, vulnerabilities, code smells and returns quality indicators. To integrate CircleCI with the SonarCloud platform we going to use a powerful tool in CircleCI called Orbs, you can found more about [Orbs here](https://circleci.com/orbs/?utm_source=google&utm_medium=sem&utm_campaign=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand&utm_term=g_e-circleci%20orbs_c__commandsSU_20200730&utm_content=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand_keyword-text_eta-circleCIOrbs_mixed-&gclid=CjwKCAjwoduRBhA4EiwACL5RP5bwGA_CGCL_q0FQfMWfvXT6KPnXgCjSWlIOOixwC_3XoQCgTdX9rhoCb4kQAvD_BwE). To use orbs you need to allowed your organization to used it. Go to Organization Settings > Security and allowed orbs.
+SonarCloud is a platform that offers SonarQube as a service, SonarQube is a multi-language tool that analyzes our codebase in search of bugs, vulnerabilities, code smells, and returns quality indicators. To integrate CircleCI with the SonarCloud platform we going to use a powerful tool in CircleCI called Orbs, you can find more about [Orbs here](https://circleci.com/orbs/?utm_source=google&utm_medium=sem&utm_campaign=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand&utm_term=g_e-circleci%20orbs_c__commandsSU_20200730&utm_content=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand_keyword-text_eta-circleCIOrbs_mixed-&gclid=CjwKCAjwoduRBhA4EiwACL5RP5bwGA_CGCL_q0FQfMWfvXT6KPnXgCjSWlIOOixwC_3XoQCgTdX9rhoCb4kQAvD_BwE). To use orbs you need to allow your organization to use them. Go to Organization Settings > Security and allowed orbs.
 
-First of all we need to create and account in SonarCloud and before we need to add our public repository to be analyzed by sonar. 
+First of all, we need to create an account in SonarCloud, and before we need to add our public repository to be analyzed by sonar.
 
 <img src="./assets/2.png" />
 
-Before that sonar will get you two importante things your **projectKey** and **SONAR_TOKEN** don't lose than. The next thing to do is create our **sonar-project-properties** file, this file contains our sonar scanner configuration to configure sonar to do everting we want.
+Before that sonar will get you two important things your **projectKey** and **SONAR_TOKEN** don’t lose then. The next thing to do is create our **sonar-project-properties** file, this file contains our sonar scanner configuration to configure sonar to do everting we want.
+
 
 ```toml
 # =====================================================
@@ -232,7 +237,7 @@ sonar.go.tests.reportPaths=report.json
 sonar.go.coverage.reportPaths=coverage.out
 ```
 
-The last configuration is register our SONAR_TOKEN into the our CircleCI project. To do that navigate through our CircleCI project, going to the Project Configurations > Environment Variable and add the SONAR_TOKEN. With all of this steps done we can write our SonarCloud Job.
+The last configuration is to register our SONAR_TOKEN into our CircleCI project. To do that navigate through our CircleCI project, go to the Project Configurations > Environment Variable and add the SONAR_TOKEN. With all of these steps done we can write our SonarCloud Job.
 
 ```yml
 jobs:
@@ -252,7 +257,8 @@ orbs:
   sonarcloud: sonarsource/sonarcloud@1.0.3
 ```
 
-We can merge all of this jobs in our config.yml and get our beautiful pipeline 😍.
+Finlay, if we merge all of the jobs in our config.yml we get our beautiful pipeline 😍.
+
 
 ```yml
 version: 2.1
