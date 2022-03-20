@@ -18,9 +18,9 @@
 
 ## Introduction
 
-One of the impotent thing in our projects is the CI process. Continuous Integration (CI) is the practice of automating the integration of code changes and guarantee the quality of the software. If CI is so important, why we don't configure this process in our personal projects? Maybe because we thing is so harder to configure or even it's take so much time. In this post I'm going to show you a simple way to configure a strong CI process using some of the best tools for that, [CircleCI](https://circleci.com/) and [SonarQuebe](https://sonarcloud.io/).
+One of the impotent thing in our projects is the CI process. Continuous Integration (CI) is the practice of automating the integration of code changes and guarantee the quality of the software. If CI is so important, why we don't configure this process in our personal projects? Maybe because we thing is so harder to configure or even it's take so much time. In this post I'm going to show you a simple way to configure a strong CI process using some of the best tools for that, [CircleCI](https://circleci.com/) and [SonarQube](https://sonarcloud.io/).
 
-For this post we are configure a CI for a simple GoLang application creating a multistage CI, each stage we called Job, in the end of this post we're going to have four jobs: **Lint**, **Test and Coverage**, **Quality Analises with SonarQuebe** and **Build**. The proposal where is to explain the CI not build a GoLang application so we assume you already know the GoLang basics and some tools [Test Pkg](https://pkg.go.dev/cmd/go/internal/test), [GolangCI Lint](https://golangci-lint.run/) also the basics about Github and Github Actions.
+For this post we are configure a CI for a simple GoLang application creating a multistage CI, each stage we called Job, in the end of this post we're going to have four jobs: **Lint**, **Test and Coverage**, **Quality Analises with SonarQube** and **Build**. The proposal where is to explain the CI not build a GoLang application so we assume you already know the GoLang basics and some tools [Test Pkg](https://pkg.go.dev/cmd/go/internal/test), [GolangCI Lint](https://golangci-lint.run/) also the basics about Github and Github Actions.
 
 The project that was built can be found in [this repository](https://github.com/ralvescosta/medium_go_and_circleci).
 
@@ -188,7 +188,7 @@ workflows:
 
 ## SonarCloud Job
 
-SonarCloud is a platform how offer the SonarQuebe as a service, SonarQuebe is a multi-language tool that analyzes our code base in search of bugs, vulnerabilities, code smells and returns quality indicators. To integrate CircleCI with the SonarCloud platform we going to use a powerful tool in CircleCI called Orbs, you can found more about [Orbs here](https://circleci.com/orbs/?utm_source=google&utm_medium=sem&utm_campaign=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand&utm_term=g_e-circleci%20orbs_c__commandsSU_20200730&utm_content=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand_keyword-text_eta-circleCIOrbs_mixed-&gclid=CjwKCAjwoduRBhA4EiwACL5RP5bwGA_CGCL_q0FQfMWfvXT6KPnXgCjSWlIOOixwC_3XoQCgTdX9rhoCb4kQAvD_BwE). To use orbs you need to allowed your organization to used it. Go to Organization Settings > Security and allowed orbs.
+SonarCloud is a platform how offer the SonarQube as a service, SonarQube is a multi-language tool that analyzes our code base in search of bugs, vulnerabilities, code smells and returns quality indicators. To integrate CircleCI with the SonarCloud platform we going to use a powerful tool in CircleCI called Orbs, you can found more about [Orbs here](https://circleci.com/orbs/?utm_source=google&utm_medium=sem&utm_campaign=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand&utm_term=g_e-circleci%20orbs_c__commandsSU_20200730&utm_content=sem-google-dg--latam-en-brandAuth-maxConv-auth-brand_keyword-text_eta-circleCIOrbs_mixed-&gclid=CjwKCAjwoduRBhA4EiwACL5RP5bwGA_CGCL_q0FQfMWfvXT6KPnXgCjSWlIOOixwC_3XoQCgTdX9rhoCb4kQAvD_BwE). To use orbs you need to allowed your organization to used it. Go to Organization Settings > Security and allowed orbs.
 
 First of all we need to create and account in SonarCloud and before we need to add our public repository to be analyzed by sonar. 
 
@@ -252,7 +252,7 @@ orbs:
   sonarcloud: sonarsource/sonarcloud@1.0.3
 ```
 
-We can merge all of this jobs in our config.yml and get our beautiful pipeline.
+We can merge all of this jobs in our config.yml and get our beautiful pipeline 😍.
 
 ```yml
 version: 2.1
