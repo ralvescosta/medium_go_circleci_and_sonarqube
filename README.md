@@ -1,12 +1,24 @@
 # How to configure CircleCI for GoLang Application
 
-**In progress**
+[**In progress**]
+
+## Table of contents
+
+  - [Introduction](#introduction)
+  - [Initial Configuration](#initial-configuration)
+  - [Build Job](#build-job)
+  - [Lint Job](#lint-job)
+  - [Test and coverage Job](#test-and-coverage-job)
+
+## Introduction
 
 One of the impotent thing in our projects is the CI process. Continuous Integration (CI) is the practice of automating the integration of code changes and guarantee the quality of the software. If CI is so important, why we don't configure this process in our personal projects? Maybe because we thing is so harder to configure or even it's take so much time. In this post I'm going to show you a simple way to configure a strong CI process using some of the best tools for that, [CircleCI](https://circleci.com/) and [SonarQuebe](https://sonarcloud.io/).
 
 For this post we are configure a CI for a simple GoLang application creating a multistage CI, each stage we called Job, in the end of this post we're going to have four jobs: **Lint**, **Test and Coverage**, **Quality Analises with SonarQuebe** and **Build**. The proposal where is to explain the CI not build a GoLang application so we assume you already know the GoLang basics and some tools [Test Pkg](https://pkg.go.dev/cmd/go/internal/test), [GolangCI Lint](https://golangci-lint.run/) also the basics about Github and Github Actions.
 
 The project that was built can be found in [this repository](https://github.com/ralvescosta/medium_go_and_circleci).
+
+## Initial Configurations
 
 First we need to create a yaml file to configure our CI processes, for CircleCI this file need to be create in a specific directory:
 
@@ -35,6 +47,8 @@ workflows:
 ```
 
 We can see two main tags: 'jobs' and 'workflows'. Basically the tag 'jobs' we define the job execution flow and in the 'workflows' how to execute the 'jobs'. Let's start with the build job:
+
+## Build Job
 
 ```yml
 version: 2.1
@@ -79,6 +93,9 @@ This job is self explanatory basically we downloaded the project packages and bu
 
 At this time the CircleCi will run for the first time our pipeline 🚀🚀.
 
+
+## Lint Job
+
 Now let's create our lint job
 
 ```yml
@@ -112,3 +129,50 @@ workflows:
 ```
 
 In our workflows we can see something diferente, it's because we wanted the build job execute only after the lint job finished their execution.
+
+## Test and coverage Job
+
+```yml
+jobs:
+  test_and_coverage:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/golang:1.17
+    steps:
+      - checkout
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - pkg
+            - sonar-project.properties
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+
+      - run:
+          name: Install Dependencies
+          command: go mod download
+
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+
+      - run:
+          name: Run unit tests
+          command: |
+            mkdir -p /tmp/test-reports
+            gotestsum --junitfile /tmp/test-reports/unit-tests.xml
+      - store_test_results:
+          path: /tmp/test-reports
+
+      - run:
+          name: Run coverage
+          command: |
+            go test ./... -race -coverprofile=coverage.out -json > report.json
+      - persist_to_workspace:
+          root: ~/repo
+          paths: 
+            - coverage.out
+            - report.json
+```
