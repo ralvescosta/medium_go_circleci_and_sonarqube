@@ -1,5 +1,8 @@
 # How to configure CircleCI for GoLang Application
 
+[![CircleCI](https://circleci.com/gh/ralvescosta/medium_go_and_circleci/tree/main.svg?style=svg)](https://circleci.com/gh/ralvescosta/medium_go_and_circleci/tree/main)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ralvescosta_medium_go_and_circleci&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ralvescosta_medium_go_and_circleci)
+
 [**In progress**]
 
 ## Table of contents
