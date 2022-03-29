@@ -257,7 +257,7 @@ orbs:
   sonarcloud: sonarsource/sonarcloud@1.0.3
 ```
 
-Finlay, if we merge all of the jobs in our config.yml we get our beautiful pipeline 😍.
+Finally, if we merge all of the jobs in our config.yml we get our beautiful pipeline 😍.
 
 
 ```yml
